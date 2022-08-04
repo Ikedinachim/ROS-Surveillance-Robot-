@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link rel="stylesheet" 
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+    <script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+    <title>UI</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .pad {
+            display:flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .top {
+            text-align: center;
+            display:flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .bottom {
+            display:flex;
+        }
+        .bottom h1, 
+        .top h1 {
+            font-size: 120px;
+            color: white;
+            background: black;
+            padding: 30px;
+            margin:10px;
+            width: 200px;
+            text-align: center;
+            cursor: pointer;
+        }
+        /* .top h1:hover,
+        .bottom h1:hover {
+            background-color: #6d1414a9;
+        } */
+        @media (max-width: 1024px) {
+            .bottom h1, 
+        .top h1 {
+            font-size: 100px;
+            padding: 25px;
+            margin:10px;
+            width: 180px;
+        }
+        }
+        @media (max-width: 600px) {
+            .bottom h1, 
+            .top h1 {
+            font-size: 40px;
+            padding: 25px;
+            margin:7px;
+            width: 100px;
+        }
+        }
+    </style>
+
+    <script>
+         var ros = new ROSLIB.Ros({
+      url: 'ws://localhost:9090'
+    });
+
+    ros.on('connection', function () {
+      document.getElementById("status").innerHTML = "Connected";
+    });
+
+    ros.on('error', function (error) {
+      document.getElementById("status").innerHTML = "Error";
+    });
+
+    ros.on('close', function () {
+      document.getElementById("status").innerHTML = "Closed";
+    });
+
+    var txt_listener = new ROSLIB.Topic({
+      ros: ros,
+      name: '/txt_msg',
+      messageType: 'std_msgs/String'
+    });
+
+    txt_listener.subscribe(function (m) {
+      document.getElementById("msg").innerHTML = m.data;
+      move(1, 0);
+    });
+
+    cmd_vel_listener = new ROSLIB.Topic({
+      ros: ros,
+      name: "/cmd_vel",
+      messageType: 'geometry_msgs/Twist'
+    });
+
+    move = function (linear, angular) {
+      var twist = new ROSLIB.Message({
+        linear: {
+          x: linear,
+          y: 0,
+          z: 0
+        },
+        angular: {
+          x: 0,
+          y: 0,
+          z: angular
+        }
+      });
+      cmd_vel_listener.publish(twist);
+    }
+
+
+        //The Keypad code is below
+        const AElement = document.querySelector('.a');
+        const SElement = document.querySelector('.s');
+        const DElement = document.querySelector('.d');
+
+        function upw() {
+            document.querySelector('.w').style.background = 'black'
+        }
+        function upa() {
+            document.querySelector('.a').style.background = 'black'
+        }
+        function ups() {
+            document.querySelector('.s').style.background = 'black'
+        }
+        function upd() {
+            document.querySelector('.d').style.background = 'black'
+        }
+     
+        function downw() {
+            document.querySelector('.w').style.background = '#6d1414a9'
+        }
+        function downa() {
+            document.querySelector('.a').style.background = '#6d1414a9'
+        }
+        function downs() {
+            document.querySelector('.s').style.background = '#6d1414a9'
+        }
+        function downd() {
+            document.querySelector('.d').style.background = '#6d1414a9'
+        }
+     //w - 87 A - 65 S - 83 D - 68
+      
+
+    document.onkeyup = function(e){
+        e = e  
+        window.event;
+        var key = e.which  
+        e.keyCode;
+            if(key===87){
+                upw();
+		 move(0,0);
+
+            }
+            if(key === 65) {
+                upa();
+		 move(0,0);
+            }
+            if(key === 83) {
+                ups();
+		 move(0,0);
+            }
+            if(key === 68) {
+                upd();
+		 move(0,0);
+            }
+        }
+    document.onkeydown = function(e){
+        e = e  
+        window.event;
+        var key = e.which  
+        e.keyCode;
+            if(key===87){
+                downw();
+                move(0,1);
+            }
+            if(key === 65) {
+                downa();	
+                move(1,0);
+            }
+            if(key === 83) {
+                downs();
+                move(0,-1);
+            }
+            if(key === 68) {
+                downd();
+                move(-1,0);
+            }
+        }
+    </script>
+</head>
+<body>
+  <h1>Simple ROS User Interface</h1>
+  <p>Connection status: <span id="status"></span></p>
+  <p>Last message on /txt_msg: <span id="msg"></span></p>
+    <section>
+        <div class="pad">
+            <div class="letters">
+                <div class="top"> 
+                    <h1 class="w">W</h1>
+                </div>
+                <div class="bottom"> 
+                    <h1 class="a">A</h1>
+                    <h1 class="s">S</h1>
+                    <h1 class="d">D</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
